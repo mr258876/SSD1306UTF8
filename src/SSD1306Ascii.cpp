@@ -60,7 +60,7 @@ void SSD1306Ascii::clear(uint8_t c0, uint8_t c1, uint8_t r0, uint8_t r1) {
     setCursor(c0, r);
     for (uint8_t c = c0; c <= c1; c++) {
       // Insure clear() writes zero. result is (m_invertMask^m_invertMask).
-      ssd1306WriteRamBuf(m_invertMask);
+      ssd1306WriteRamBuf(m_clearFiller);
     }
   }
   setCursor(c0, r0);

@@ -257,6 +257,14 @@ class SSD1306Ascii : public Print {
    */
   void clearToEOL();
   /**
+   * @brief Set the Clear Filler object
+   * @example set the value to 0b10010000 then clear a page
+   *          will turn the 1st and 4th pixel on.
+   * 
+   * @param[in] filler the filler. 
+   */
+  void setClearFiller(uint8_t filler) { m_clearFiller = filler; }
+  /**
    * @return The current column in pixels.
    */
   uint8_t col() const { return m_col; }
@@ -493,6 +501,7 @@ class SSD1306Ascii : public Print {
 #endif                                         // INCLUDE_SCROLLING
   uint8_t m_skip = 0;
   const uint8_t* m_font = nullptr;  // Current font.
+  uint8_t m_clearFiller = 0;
   uint8_t m_invertMask = 0;         // font invert mask
   uint8_t m_magFactor = 1;          // Magnification factor.
 };
