@@ -1,5 +1,8 @@
 /**
- * Copyright (c) 2011-2023 Bill Greiman
+ * Original Copyright (c) 2011-2023 Bill Greiman
+ * 
+ * Modified by mr258876 (c) 2024
+ * 
  * This file is part of the Arduino SSD1306Ascii Library
  *
  * MIT License
@@ -48,6 +51,10 @@ inline uint8_t readFontByte(uint8_t const *addr) { return pgm_read_byte(addr); }
 #define GLCDFONTDECL(_n) static const uint8_t _n[]
 /** Fake read from flash. */
 inline uint8_t readFontByte(uint8_t const *addr) { return *addr; }
+/** Fake read from flash. */
+inline uint16_t readFontBytes16(uint8_t const *addr) { return (*addr) << 8 | *(addr + 1); }
+/** Fake read from flash. */
+inline uint32_t readFontBytes24(uint8_t const *addr) { return (*addr) << 16 | (*(addr + 1) << 8) | *(addr + 2); }
 #endif  // __AVR__
 //------------------------------------------------------------------------------
 // Font Indices
@@ -56,6 +63,13 @@ inline uint8_t readFontByte(uint8_t const *addr) { return *addr; }
  * 00 00 (fixed width font with 1 padding pixel on right and below)
  *
  * 00 01 (fixed width font with no padding pixels)
+ * 
+ * 00 02 (utf-8 multi byte support, fixed width font with 1 padding pixel on right and below)
+ * 
+ * 00 03 (utf-8 multi byte support, fixed width font with no padding pixels)
+ * 
+ * 00 04 (utf-8 multi byte support, variable width font with)
+ * 
  */
 #define FONT_LENGTH 0
 /** Maximum character width. */
@@ -75,9 +89,29 @@ inline uint8_t readFontByte(uint8_t const *addr) { return *addr; }
 // some special things.
 // 00 00 (fixed width font with 1 padding pixel on right and below)
 // 00 01 (fixed width font with no padding pixels)
-// FONT_WIDTH it the max character width.
+// FONT_WIDTH is the max character width.
+// 00 02 (utf-8 multi byte support, fixed width font with 1 padding pixel on right and below) 
+// 00 03 (utf-8 multi byte support, fixed width font with no padding pixels)
+// FONT_WIDTH is the max character width for ASCII characters (val < 128)
 // any other value means variable width font in FontCreator2 (thiele)
 // format with pixel padding
+
+#define FONT_UTF8_EXTRA_HEADER_LEN  2
+// Extra length in original header of utf8 fonts
+#define FONT_UTF8_HEADER_POS    6
+// Big-endian uint16_t, points to the start pos of utf-8 section
+#define FONT_UTF8_INDICATOR     0
+/**
+ * Indicator of utf8 section.
+ *  bit0: Is fixed width
+ *  bit1: Enable right and bottom padding
+ *  bit2: Enable extension planes (this will make glyphs in glyph table 3 bytes each instead of 2)
+ */
+#define FONT_UTF8_GLYPH_WIDTH   2
+/* Glyph width when fixed width*/
+#define FONT_UTF8_CHAR_COUNT    3
+/* Offset to glyph table */
+#define FONT_UTF8_GLYPH_TABLE   5
 
 #include "Adafruit5x7.h"    // Font from Adafruit GFX library
 #include "Arial14.h"        // proportional font

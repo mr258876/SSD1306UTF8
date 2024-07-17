@@ -1,5 +1,8 @@
 /**
- * Copyright (c) 2011-2023 Bill Greiman
+ * Original Copyright (c) 2011-2023 Bill Greiman
+ * 
+ * Modified by mr258876 (c) 2024
+ * 
  * This file is part of the Arduino SSD1306Ascii Library
  *
  * MIT License
@@ -225,6 +228,13 @@ class SSD1306Ascii : public Print {
    */
   uint8_t charWidth(uint8_t c) const;
   /**
+   * @brief Determine the width of a utf-8 character.
+   *
+   * @param[in] c Character code.
+   * @return Width of the character in pixels.
+   */
+  const uint8_t charWidthUtf8();
+  /**
    * @brief Clear the display and set the cursor to (0, 0).
    */
   void clear();
@@ -323,6 +333,14 @@ class SSD1306Ascii : public Print {
    */
   uint8_t fontWidth() const;
   /**
+   * @return Whether a font supports utf8 characters
+   */
+  uint8_t fontSupportsUtf8() const;
+  /**
+   * @return The count of utf8 characters in a font.
+   */
+  uint16_t fontUtf8CharCount() const;
+  /**
    * @brief Set the cursor position to (0, 0).
    */
   void home() { setCursor(0, 0); }
@@ -352,6 +370,10 @@ class SSD1306Ascii : public Print {
    * @return letter-spacing in pixels with magnification factor.
    */
   uint8_t letterSpacing() const { return m_magFactor * m_letterSpacing; }
+  /**
+   * @return utf8 glyph-spacing in pixels with magnification factor.
+   */
+  const uint8_t utf8GlyphSpacing();
   /**
    * @return The character magnification factor.
    */
@@ -439,7 +461,7 @@ class SSD1306Ascii : public Print {
    * @param[in] str The pointer to string.
    * @return the width of the string in pixels.
    */
-  size_t strWidth(const char* str) const;
+  const size_t strWidth(const char* str);
   /**
    * @brief Initialize TickerState struct.
    *
@@ -488,6 +510,9 @@ class SSD1306Ascii : public Print {
  protected:
   uint16_t fontSize() const;
   virtual void writeDisplay(uint8_t b, uint8_t mode) = 0;
+  uint8_t readUtf8Data(uint8_t ch);
+  uint8_t writeUtf8Glyph();
+  uint32_t utf8BufferToUnicode();
   uint8_t m_col;            // Cursor column.
   uint8_t m_row;            // Cursor RAM row.
   uint8_t m_displayWidth;   // Display width.
@@ -501,8 +526,11 @@ class SSD1306Ascii : public Print {
 #endif                                         // INCLUDE_SCROLLING
   uint8_t m_skip = 0;
   const uint8_t* m_font = nullptr;  // Current font.
-  uint8_t m_clearFiller = 0;
+  uint8_t m_clearFiller = 0;        // filler when clearing area 
   uint8_t m_invertMask = 0;         // font invert mask
   uint8_t m_magFactor = 1;          // Magnification factor.
+
+  uint8_t m_utf8Buffer[4];          // buffer for reading utf-8 char
+  uint8_t m_utf8BufferedCount = 0;  // buffered bytes count
 };
 #endif  // SSD1306Ascii_h
