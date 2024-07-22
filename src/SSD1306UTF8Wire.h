@@ -23,19 +23,19 @@
  * DEALINGS IN THE SOFTWARE.
  */
 /**
- * @file SSD1306AsciiWire.h
+ * @file SSD1306UTF8Wire.h
  * @brief Class for I2C displays using Wire.
  */
-#ifndef SSD1306AsciiWire_h
-#define SSD1306AsciiWire_h
+#ifndef SSD1306UTF8Wire_h
+#define SSD1306UTF8Wire_h
 #include <Wire.h>
 
-#include "SSD1306Ascii.h"
+#include "SSD1306UTF8.h"
 /**
- * @class SSD1306AsciiWire
+ * @class SSD1306UTF8Wire
  * @brief Class for I2C displays using Wire.
  */
-class SSD1306AsciiWire : public SSD1306Ascii {
+class SSD1306UTF8Wire : public SSD1306UTF8 {
  public:
 #if MULTIPLE_I2C_PORTS
   /**
@@ -43,7 +43,7 @@ class SSD1306AsciiWire : public SSD1306Ascii {
    *
    * @param[in] bus The I2C bus to be used.
    */
-  explicit SSD1306AsciiWire(decltype(Wire)& bus = Wire) : m_oledWire(bus) {}
+  explicit SSD1306UTF8Wire(decltype(Wire)& bus = Wire) : m_oledWire(bus) {}
 #else  // MULTIPLE_I2C_PORTS
 #define m_oledWire Wire
 #endif  // MULTIPLE_I2C_PORTS
@@ -114,4 +114,4 @@ class SSD1306AsciiWire : public SSD1306Ascii {
   uint8_t m_nData;
 #endif  // OPTIMIZE_I2C
 };
-#endif  // SSD1306AsciiWire_h
+#endif  // SSD1306UTF8Wire_h

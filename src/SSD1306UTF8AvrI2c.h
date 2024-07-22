@@ -23,60 +23,76 @@
  * DEALINGS IN THE SOFTWARE.
  */
 /**
- * @file SSD1306AsciiSpi.h
- * @brief Class for hardware SPI displays.
+ * @file SSD1306UTF8AvrI2c.h
+ * @brief Class for I2C displays using AvrI2c.
  */
-#ifndef SSD1306AsciiSpi_h
-#define SSD1306AsciiSpi_h
-#include <SPI.h>
-
-#include "SSD1306Ascii.h"
-//------------------------------------------------------------------------------
+#ifndef SSD1306UTF8AvrI2c_h
+#define SSD1306UTF8AvrI2c_h
+#include "SSD1306UTF8.h"
+#include "utility/AvrI2c.h"
 /**
- * @class SSD1306AsciiSpi
- * @brief Class for SPI displays on the hardware SPI bus.
+ * @class SSD1306UTF8AvrI2c
+ * @brief Class for I2C displays on AVR.
+ *
+ * Uses the AvrI2c class that is smaller and faster than the
+ * Wire library.
  */
-class SSD1306AsciiSpi : public SSD1306Ascii {
+class SSD1306UTF8AvrI2c : public SSD1306UTF8 {
  public:
   /**
    * @brief Initialize the display controller.
    *
    * @param[in] dev A device initialization structure.
-   * @param[in] cs The display controller chip select pin.
-   * @param[in] dc The display controller data/command pin.
+   * @param[in] i2cAddr The I2C address of the display controller.
    */
-  void begin(const DevType* dev, uint8_t cs, uint8_t dc) {
-    m_cs = cs;
-    m_dc = dc;
-    pinMode(m_cs, OUTPUT);
-    pinMode(m_dc, OUTPUT);
-    SPI.begin();
+  void begin(const DevType* dev, uint8_t i2cAddr) {
+    m_nData = 0;
+    m_i2cAddr = i2cAddr;
+
+    m_i2c.begin(AVRI2C_FASTMODE);
     init(dev);
   }
   /**
    * @brief Initialize the display controller.
    *
    * @param[in] dev A device initialization structure.
-   * @param[in] cs The display controller chip select pin.
-   * @param[in] dc The display controller cdata/command pin.
+   * @param[in] i2cAddr The I2C address of the display controller.
    * @param[in] rst The display controller reset pin.
    */
-  void begin(const DevType* dev, uint8_t cs, uint8_t dc, uint8_t rst) {
+  void begin(const DevType* dev, uint8_t i2cAddr, uint8_t rst) {
     oledReset(rst);
-    begin(dev, cs, dc);
+    begin(dev, i2cAddr);
   }
+  /**
+   * @brief Set the I2C bit rate.
+   *
+   * @param[in] frequency Desired frequency in Hz.
+   *            Valid range for a 16 MHz board is about 40 kHz to 444,000 kHz.
+   */
+  void setI2cClock(uint32_t frequency) { m_i2c.setClock(frequency); }
 
  protected:
   void writeDisplay(uint8_t b, uint8_t mode) {
-    digitalWrite(m_dc, mode != SSD1306_MODE_CMD);
-    SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
-    digitalWrite(m_cs, LOW);
-    SPI.transfer(b);
-    digitalWrite(m_cs, HIGH);
-    SPI.endTransaction();
+    if ((m_nData && mode == SSD1306_MODE_CMD)) {
+      m_i2c.stop();
+      m_nData = 0;
+    }
+    if (m_nData == 0) {
+      m_i2c.start((m_i2cAddr << 1) | I2C_WRITE);
+      m_i2c.write(mode == SSD1306_MODE_CMD ? 0X00 : 0X40);
+    }
+    m_i2c.write(b);
+    if (mode == SSD1306_MODE_RAM_BUF) {
+      m_nData++;
+    } else {
+      m_i2c.stop();
+      m_nData = 0;
+    }
   }
 
-  int8_t m_cs;
-  int8_t m_dc;
+ protected:
+  AvrI2c m_i2c;
+  uint8_t m_i2cAddr;
+  uint8_t m_nData;
 };
-#endif  // SSD1306AsciiSpi_h
+#endif  // SSD1306UTF8AvrI2c_h

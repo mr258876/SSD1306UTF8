@@ -23,35 +23,34 @@
  * DEALINGS IN THE SOFTWARE.
  */
 /**
- * @file SSD1306AsciiSoftSpi.h
- * @brief Class for software SPI displays.
+ * @file SSD1306UTF8Spi.h
+ * @brief Class for hardware SPI displays.
  */
-#ifndef SSD1306AsciiSoftSpi_h
-#define SSD1306AsciiSoftSpi_h
+#ifndef SSD1306UTF8Spi_h
+#define SSD1306UTF8Spi_h
+#include <SPI.h>
 
-#include "SSD1306Ascii.h"
-#include "utility/DigitalOutput.h"
+#include "SSD1306UTF8.h"
+//------------------------------------------------------------------------------
 /**
- * @class SSD1306AsciiSoftSpi
- * @brief Class for SPI displays using software SPI.
+ * @class SSD1306UTF8Spi
+ * @brief Class for SPI displays on the hardware SPI bus.
  */
-class SSD1306AsciiSoftSpi : public SSD1306Ascii {
+class SSD1306UTF8Spi : public SSD1306UTF8 {
  public:
   /**
    * @brief Initialize the display controller.
    *
    * @param[in] dev A device initialization structure.
    * @param[in] cs The display controller chip select pin.
-   * @param[in] dc The display controller cdata/command pin.
-   * @param[in] clk The SPI clock pin.
-   * @param[in] data The SPI MOSI pin.
+   * @param[in] dc The display controller data/command pin.
    */
-  void begin(const DevType* dev, uint8_t cs, uint8_t dc, uint8_t clk,
-             uint8_t data) {
-    m_csPin.begin(cs);
-    m_dcPin.begin(dc);
-    m_clkPin.begin(clk);
-    m_dataPin.begin(data);
+  void begin(const DevType* dev, uint8_t cs, uint8_t dc) {
+    m_cs = cs;
+    m_dc = dc;
+    pinMode(m_cs, OUTPUT);
+    pinMode(m_dc, OUTPUT);
+    SPI.begin();
     init(dev);
   }
   /**
@@ -60,36 +59,24 @@ class SSD1306AsciiSoftSpi : public SSD1306Ascii {
    * @param[in] dev A device initialization structure.
    * @param[in] cs The display controller chip select pin.
    * @param[in] dc The display controller cdata/command pin.
-   * @param[in] clk The SPI clock pin.
-   * @param[in] data The SPI MOSI pin.
    * @param[in] rst The display controller reset pin.
    */
-  void begin(const DevType* dev, uint8_t cs, uint8_t dc, uint8_t clk,
-             uint8_t data, uint8_t rst) {
-    pinMode(rst, OUTPUT);
-    digitalWrite(rst, LOW);
-    delay(10);
-    digitalWrite(rst, HIGH);
-    delay(10);
-    begin(dev, cs, dc, clk, data);
+  void begin(const DevType* dev, uint8_t cs, uint8_t dc, uint8_t rst) {
+    oledReset(rst);
+    begin(dev, cs, dc);
   }
 
  protected:
   void writeDisplay(uint8_t b, uint8_t mode) {
-    m_dcPin.write(mode != SSD1306_MODE_CMD);
-    m_csPin.write(LOW);
-    for (uint8_t m = 0X80; m; m >>= 1) {
-      m_clkPin.write(LOW);
-      m_dataPin.write(m & b);
-      m_clkPin.write(HIGH);
-    }
-    m_csPin.write(HIGH);
+    digitalWrite(m_dc, mode != SSD1306_MODE_CMD);
+    SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
+    digitalWrite(m_cs, LOW);
+    SPI.transfer(b);
+    digitalWrite(m_cs, HIGH);
+    SPI.endTransaction();
   }
 
- protected:
-  DigitalOutput m_csPin;
-  DigitalOutput m_dcPin;
-  DigitalOutput m_clkPin;
-  DigitalOutput m_dataPin;
+  int8_t m_cs;
+  int8_t m_dc;
 };
-#endif  // SSD1306AsciiSoftSpi_h
+#endif  // SSD1306UTF8Spi_h

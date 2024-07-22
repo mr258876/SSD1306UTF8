@@ -23,76 +23,73 @@
  * DEALINGS IN THE SOFTWARE.
  */
 /**
- * @file SSD1306AsciiAvrI2c.h
- * @brief Class for I2C displays using AvrI2c.
+ * @file SSD1306UTF8SoftSpi.h
+ * @brief Class for software SPI displays.
  */
-#ifndef SSD1306AsciiAvrI2c_h
-#define SSD1306AsciiAvrI2c_h
-#include "SSD1306Ascii.h"
-#include "utility/AvrI2c.h"
+#ifndef SSD1306UTF8SoftSpi_h
+#define SSD1306UTF8SoftSpi_h
+
+#include "SSD1306UTF8.h"
+#include "utility/DigitalOutput.h"
 /**
- * @class SSD1306AsciiAvrI2c
- * @brief Class for I2C displays on AVR.
- *
- * Uses the AvrI2c class that is smaller and faster than the
- * Wire library.
+ * @class SSD1306UTF8SoftSpi
+ * @brief Class for SPI displays using software SPI.
  */
-class SSD1306AsciiAvrI2c : public SSD1306Ascii {
+class SSD1306UTF8SoftSpi : public SSD1306UTF8 {
  public:
   /**
    * @brief Initialize the display controller.
    *
    * @param[in] dev A device initialization structure.
-   * @param[in] i2cAddr The I2C address of the display controller.
+   * @param[in] cs The display controller chip select pin.
+   * @param[in] dc The display controller cdata/command pin.
+   * @param[in] clk The SPI clock pin.
+   * @param[in] data The SPI MOSI pin.
    */
-  void begin(const DevType* dev, uint8_t i2cAddr) {
-    m_nData = 0;
-    m_i2cAddr = i2cAddr;
-
-    m_i2c.begin(AVRI2C_FASTMODE);
+  void begin(const DevType* dev, uint8_t cs, uint8_t dc, uint8_t clk,
+             uint8_t data) {
+    m_csPin.begin(cs);
+    m_dcPin.begin(dc);
+    m_clkPin.begin(clk);
+    m_dataPin.begin(data);
     init(dev);
   }
   /**
    * @brief Initialize the display controller.
    *
    * @param[in] dev A device initialization structure.
-   * @param[in] i2cAddr The I2C address of the display controller.
+   * @param[in] cs The display controller chip select pin.
+   * @param[in] dc The display controller cdata/command pin.
+   * @param[in] clk The SPI clock pin.
+   * @param[in] data The SPI MOSI pin.
    * @param[in] rst The display controller reset pin.
    */
-  void begin(const DevType* dev, uint8_t i2cAddr, uint8_t rst) {
-    oledReset(rst);
-    begin(dev, i2cAddr);
+  void begin(const DevType* dev, uint8_t cs, uint8_t dc, uint8_t clk,
+             uint8_t data, uint8_t rst) {
+    pinMode(rst, OUTPUT);
+    digitalWrite(rst, LOW);
+    delay(10);
+    digitalWrite(rst, HIGH);
+    delay(10);
+    begin(dev, cs, dc, clk, data);
   }
-  /**
-   * @brief Set the I2C bit rate.
-   *
-   * @param[in] frequency Desired frequency in Hz.
-   *            Valid range for a 16 MHz board is about 40 kHz to 444,000 kHz.
-   */
-  void setI2cClock(uint32_t frequency) { m_i2c.setClock(frequency); }
 
  protected:
   void writeDisplay(uint8_t b, uint8_t mode) {
-    if ((m_nData && mode == SSD1306_MODE_CMD)) {
-      m_i2c.stop();
-      m_nData = 0;
+    m_dcPin.write(mode != SSD1306_MODE_CMD);
+    m_csPin.write(LOW);
+    for (uint8_t m = 0X80; m; m >>= 1) {
+      m_clkPin.write(LOW);
+      m_dataPin.write(m & b);
+      m_clkPin.write(HIGH);
     }
-    if (m_nData == 0) {
-      m_i2c.start((m_i2cAddr << 1) | I2C_WRITE);
-      m_i2c.write(mode == SSD1306_MODE_CMD ? 0X00 : 0X40);
-    }
-    m_i2c.write(b);
-    if (mode == SSD1306_MODE_RAM_BUF) {
-      m_nData++;
-    } else {
-      m_i2c.stop();
-      m_nData = 0;
-    }
+    m_csPin.write(HIGH);
   }
 
  protected:
-  AvrI2c m_i2c;
-  uint8_t m_i2cAddr;
-  uint8_t m_nData;
+  DigitalOutput m_csPin;
+  DigitalOutput m_dcPin;
+  DigitalOutput m_clkPin;
+  DigitalOutput m_dataPin;
 };
-#endif  // SSD1306AsciiAvrI2c_h
+#endif  // SSD1306UTF8SoftSpi_h

@@ -3,7 +3,7 @@
  * 
  * Modified by mr258876 (c) 2024
  * 
- * This file is part of the Arduino SSD1306Ascii Library
+ * This file is part of the Arduino SSD1306UTF8 Library
  *
  * MIT License
  *
@@ -26,16 +26,16 @@
  * DEALINGS IN THE SOFTWARE.
  */
 /**
- * @file SSD1306Ascii.h
+ * @file SSD1306UTF8.h
  * @brief Base class for ssd1306 displays.
  */
-#ifndef SSD1306Ascii_h
-#define SSD1306Ascii_h
+#ifndef SSD1306UTF8_h
+#define SSD1306UTF8_h
 #include "Arduino.h"
 #include "SSD1306init.h"
 #include "fonts/allFonts.h"
 //------------------------------------------------------------------------------
-/** SSD1306Ascii version */
+/** SSD1306UTF8 version */
 #define SDD1306_ASCII_VERSION 10305
 //------------------------------------------------------------------------------
 // Configuration options.
@@ -140,13 +140,13 @@ struct TickerState {
 };
 //------------------------------------------------------------------------------
 /**
- * @class SSD1306Ascii
+ * @class SSD1306UTF8
  * @brief SSD1306 base class
  */
-class SSD1306Ascii : public Print {
+class SSD1306UTF8 : public Print {
  public:
   using Print::write;
-  SSD1306Ascii() {}
+  SSD1306UTF8() {}
 #if INCLUDE_SCROLLING
   //----------------------------------------------------------------------------
   /**
@@ -266,14 +266,28 @@ class SSD1306Ascii : public Print {
    * @note The cursor will be returned to the original position.
    */
   void clearToEOL();
-  /**
-   * @brief Set the Clear Filler object
-   * @example set the value to 0b10010000 then clear a page
-   *          will turn the 1st and 4th pixel on.
-   * 
-   * @param[in] filler the filler. 
+    /**
+   * @brief Fill the display and set the cursor to (0, 0).
    */
-  void setClearFiller(uint8_t filler) { m_clearFiller = filler; }
+  void fill();
+  /**
+   * @brief Fill a region of the display.
+   *
+   * @param[in] c0 Starting column.
+   * @param[in] c1 Ending column.
+   * @param[in] r0 Starting row;
+   * @param[in] r1 Ending row;
+   * @param[in] filler Pixels to fill the area;
+   * @note The final cursor position will be (c0, r0).
+   */
+  void fill(uint8_t c0, uint8_t c1, uint8_t r0, uint8_t r1 ,uint8_t filler);
+    /**
+   * @brief Fill the display to the end of the current line.
+   * @note The number of rows filled will be determined by the height
+   *       of the current font.
+   * @note The cursor will be returned to the original position.
+   */
+  void fillToEOL();
   /**
    * @return The current column in pixels.
    */
@@ -526,11 +540,10 @@ class SSD1306Ascii : public Print {
 #endif                                         // INCLUDE_SCROLLING
   uint8_t m_skip = 0;
   const uint8_t* m_font = nullptr;  // Current font.
-  uint8_t m_clearFiller = 0;        // filler when clearing area 
   uint8_t m_invertMask = 0;         // font invert mask
   uint8_t m_magFactor = 1;          // Magnification factor.
 
   uint8_t m_utf8Buffer[4];          // buffer for reading utf-8 char
   uint8_t m_utf8BufferedCount = 0;  // buffered bytes count
 };
-#endif  // SSD1306Ascii_h
+#endif  // SSD1306UTF8_h
