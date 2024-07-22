@@ -419,11 +419,12 @@ uint8_t SSD1306UTF8::writeUtf8Glyph() {
     {
       p_glyph_md += FONT_UTF8_GLYPH_TABLE + i * glyphMetaLen;
       w = fontIsFixedWidth ? readFontByte(font_utf8 + FONT_UTF8_GLYPH_WIDTH) : readFontByte(p_glyph_md + (fontUseExtensionPlanes ? 3 : 2));
+      break;
     }
   }
   if (p_glyph_md == font_utf8) return 0;
 
-  const uint8_t *p_glyph_d = m_font +  readFontBytes24(p_glyph_md + glyphMetaLen - 3);
+  const uint8_t *p_glyph_d = m_font + (fontUse24bitAddr ? readFontBytes24(p_glyph_md + glyphMetaLen - 3) : readFontBytes16(p_glyph_md + glyphMetaLen - 2));
 
   uint8_t s = fontUsePadding ? 1 : 0;
   uint8_t thieleShift = 0;
