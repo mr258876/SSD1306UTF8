@@ -106,6 +106,7 @@ inline uint32_t readFontBytes24(uint8_t const *addr) { return (*addr) << 16 | (*
  *  bit0: Is fixed width
  *  bit1: Enable right and bottom padding
  *  bit2: Enable extension planes (this will make glyphs in glyph table 3 bytes each instead of 2)
+ *  bit3: Enable 24bit address for glyph data
  */
 #define FONT_UTF8_GLYPH_WIDTH   2
 /* Glyph width when fixed width*/
