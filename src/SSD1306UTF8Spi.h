@@ -79,4 +79,5 @@ class SSD1306UTF8Spi : public SSD1306UTF8 {
   int8_t m_cs;
   int8_t m_dc;
 };
+#define SSD1306AsciiSpi SSD1306UTF8Spi
 #endif  // SSD1306UTF8Spi_h

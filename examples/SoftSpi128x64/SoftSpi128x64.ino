@@ -1,7 +1,7 @@
 // Simple software SPI test for ebay 128x64 oled.
 
-#include "SSD1306Ascii.h"
-#include "SSD1306AsciiSoftSpi.h"
+#include "SSD1306UTF8.h"
+#include "SSD1306UTF8SoftSpi.h"
 
 // pin definitions
 #define CS_PIN    7

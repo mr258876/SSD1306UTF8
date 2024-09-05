@@ -1,8 +1,8 @@
 // Test for minimum program size.
 
 #include <SPI.h>
-#include "SSD1306Ascii.h"
-#include "SSD1306AsciiSoftSpi.h"
+#include "SSD1306UTF8.h"
+#include "SSD1306UTF8SoftSpi.h"
 
 // pin definitions
 #define CS_PIN    7

@@ -46,6 +46,8 @@
 /** declare a font for AVR. */
 #define GLCDFONTDECL(_n) static const uint8_t __attribute__((progmem)) _n[]
 inline uint8_t readFontByte(uint8_t const *addr) { return pgm_read_byte(addr); }
+inline uint16_t readFontBytes16(uint8_t const *addr) { return pgm_read_byte(addr) << 8 | pgm_read_byte(addr + 1); }
+inline uint32_t readFontBytes24(uint8_t const *addr) { return pgm_read_byte(addr) << 16 | (pgm_read_byte(addr + 1) << 8) | pgm_read_byte(addr + 2); }
 #else  // __AVR__
 /** declare a font. */
 #define GLCDFONTDECL(_n) static const uint8_t _n[]
@@ -157,6 +159,7 @@ inline uint32_t readFontBytes24(uint8_t const *addr) { return (*addr) << 16 | (*
 #include "lcdnums12x16.h"  // font that looks like LCD digits
 #include "lcdnums14x24.h"  // font that looks like LCD digits
 #include "newbasic3x5.h"
+#include "HelloWorldUTF8.h"
 
 /*
  * These fonts require no-pad rendering code

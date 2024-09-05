@@ -114,4 +114,5 @@ class SSD1306UTF8Wire : public SSD1306UTF8 {
   uint8_t m_nData;
 #endif  // OPTIMIZE_I2C
 };
+#define SSD1306AsciiWire SSD1306UTF8Wire
 #endif  // SSD1306UTF8Wire_h

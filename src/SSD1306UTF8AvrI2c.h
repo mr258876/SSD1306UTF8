@@ -95,4 +95,5 @@ class SSD1306UTF8AvrI2c : public SSD1306UTF8 {
   uint8_t m_i2cAddr;
   uint8_t m_nData;
 };
+#define SSD1306AsciiAvrI2c SSD1306UTF8AvrI2c
 #endif  // SSD1306UTF8AvrI2c_h

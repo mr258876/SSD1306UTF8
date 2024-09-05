@@ -2,7 +2,7 @@
 // Print simple representation of ASCII characters for 5x7 fixed fonts.
 //
 #include "SdFat.h"
-#include "SSD1306Ascii.h"
+#include "SSD1306UTF8.h"
 const char* fontName[] = {
   "Adafruit5x7",
   "font5x7",

@@ -3,8 +3,8 @@
 // Use a display with height < 64.
 // You may want to look at the SSD1306 data sheet for more info.
 #include <Wire.h>
-#include "SSD1306Ascii.h"
-#include "SSD1306AsciiWire.h"
+#include "SSD1306UTF8.h"
+#include "SSD1306UTF8Wire.h"
 
 // 0X3C+SA0 - 0x3C or 0x3D
 #define I2C_ADDRESS 0x3C

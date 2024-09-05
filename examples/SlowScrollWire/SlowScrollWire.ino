@@ -5,8 +5,8 @@
 // is scrolled.  The newly written line will flash at the top of 64
 // high displays.
 #include <Wire.h>
-#include "SSD1306Ascii.h"
-#include "SSD1306AsciiWire.h"
+#include "SSD1306UTF8.h"
+#include "SSD1306UTF8Wire.h"
 
 // 0X3C+SA0 - 0x3C or 0x3D
 #define I2C_ADDRESS 0x3C

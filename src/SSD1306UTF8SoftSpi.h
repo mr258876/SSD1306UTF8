@@ -92,4 +92,5 @@ class SSD1306UTF8SoftSpi : public SSD1306UTF8 {
   DigitalOutput m_clkPin;
   DigitalOutput m_dataPin;
 };
+#define SSD1306AsciiSoftSpi SSD1306UTF8SoftSpi
 #endif  // SSD1306UTF8SoftSpi_h

@@ -1,8 +1,8 @@
 // Test for minimum program size.
 // Edit AVRI2C_FASTMODE in SSD1306Ascii.h to change the default I2C frequency.
 
-#include "SSD1306Ascii.h"
-#include "SSD1306AsciiAvrI2c.h"
+#include "SSD1306UTF8.h"
+#include "SSD1306UTF8AvrI2c.h"
 
 // 0X3C+SA0 - 0x3C or 0x3D
 #define I2C_ADDRESS 0x3C
